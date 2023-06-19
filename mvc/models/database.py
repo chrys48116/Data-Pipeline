@@ -1,19 +1,13 @@
-import sqlite3
+from pymongo import MongoClient
 
 class Database:
-    def __init__(self, db_name):
-        self.conn = sqlite3.connect(db_name)
-        self.cursor = self.conn.cursor()
+    def __init__(self):
+        self.client = MongoClient("mongodb+srv://chrystian:chrystianartur16@cluster0.9bva9n6.mongodb.net/")
+        self.db = self.client['Cluster0']
 
-    def create_table(self):
-        # Aqui, você pode adicionar a lógica para criar as tabelas necessárias no banco de dados.
-        pass
-
-    def insert_data(self, data):
-        # Aqui, você pode adicionar a lógica para inserir dados no banco de dados.
-        pass
-
-    def select_data(self, query):
-        # Aqui, você pode adicionar a lógica para selecionar dados do banco de dados.
-        pass
+    def insert(self, zip_name, data):
+        collection = self.db[f'{zip_name.split(".")[0]}']
+        # Inserir os documentos na coleção
+        collection.insert_many(data)
+        print("Dados inseridos no MongoDB Atlas com sucesso.")
 

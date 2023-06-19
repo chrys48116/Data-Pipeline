@@ -7421,19 +7421,20 @@ def fileType(name, data):
 
     if name.startswith('Empresas'):
         processingEmpresas()
-        pass
     elif name.startswith('Estabelecimento'):
         data = processingEstabelecimento(name, data)
+        insertData(name, data)
+        pass
+
     elif name.startswith('Socios'):
         processingSocios()
-        pass
     
     insertData(name, data)
 
 def processingEmpresas():
     pass
 
-def processingSocios():
+def processingSocios(name, data):
     df = pd.read_csv('data\\teste.csv', encoding='latin1', sep=';', low_memory=False)
     data = df.head()
     #name = name.split(".")[0]
@@ -7449,8 +7450,7 @@ def processingSocios():
     data['Qualificação'] = data[data.columns[4]].map(dados)
 
     data['Data Entrada Sociedade'] = data[data.columns[5]].astype(str)
-    data['Data Entrada Sociedade'] = data['Data Entrada Sociedade'].str.replace(r'(\d{4})(\d{2})(\d{2})', r'\1-\2-\3')
-    data['Data Entrada Sociedade'] = pd.to_datetime(data['Data Entrada Sociedade'], errors='coerce', format='%d/%m/%Y')
+    data['Data Entrada Sociedade'] = data['Data Entrada Sociedade'].apply(lambda x: f"{x[6:]}/{x[4:6]}/{x[:4]}")
 
     dados = archives_parser('paises')
     data['CO-Pais'] = data[data.columns[6]].map(dados)
@@ -7461,6 +7461,7 @@ def processingSocios():
     data['Registro'] = data[data.columns[10]]
 
     data_final = data[['CNPJ','ID Socio','Qualificação','Data Entrada Sociedade','CO-Pais','Qualificação Representante','Registro']]
+    data_final = data_final.to_dict(orient='records')
 
     return data_final
 
@@ -7474,71 +7475,68 @@ def processingEstabelecimento(name, data):
     data['CNPJ'] = data[data.columns[1]].astype(str)
     data['CNPJ'] = data[data.columns[2]].astype(str)
     data['CNPJ'] = data.iloc[:, :3].astype(str).apply(lambda row: '.'.join([str(val) for val in row]), axis=1) #TODO: arrumar 0001
-    #data['CNPJ'] = np.where(len(data['CNPJ']).split('.')[1] == 1, '000' + data['CNPJ'].aplit('.')[1])
-    #print(data['CNPJ'])
+    data['CNPJ'] = data['CNPJ'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
+
     data['Matriz/Filial'] = np.where(data[data.columns[3]]==1, 'Matriz', 'Filial')
+    data['Matriz/Filial'] = data['Matriz/Filial'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
+
     data['Razão Social/Nome'] = data[data.columns[4]]
-    #data['Nome Fantasia'] = data[data.columns[5]]
+    data['Razão Social/Nome'] = data['Razão Social/Nome'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     dados = archives_parser('situacao')
     data['Situação Cadastral'] = data[data.columns[5]].map(dados)
+    data['Situação Cadastral'] = data['Situação Cadastral'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     data['Data Situação Cadastral'] = data[data.columns[6]].astype(str)
-    data['Data Situação Cadastral'] = data['Data Situação Cadastral'].str.replace(r'(\d{4})(\d{2})(\d{2})', r'\1-\2-\3')
-    data['Data Situação Cadastral'] = pd.to_datetime(data['Data Situação Cadastral'], errors='coerce', format='%d/%m/%Y')
+    data['Data Situação Cadastral'] = data['Data Situação Cadastral'].apply(lambda x: f"{x[6:]}/{x[4:6]}/{x[:4]}")
+    data['Data Situação Cadastral'] = data['Data Situação Cadastral'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
     
-
     dados = archives_parser('motivos')
     data['Motivo Situação Cadastral'] = data[data.columns[7]].map(dados)
-
-    #dados = archives_parser('paises')
-    #data['Nm Cidade'] = data[data.columns[8]].map(dados) #TODO:Verificar com atencao 
+    data['Motivo Situação Cadastral'] = data['Motivo Situação Cadastral'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
     
     dados = archives_parser('paises')
     data['CO-Pais'] = data[data.columns[9]].map(dados)
+    data['CO-Pais'] = data['CO-Pais'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     data['Data Inicio Atividade'] = data[data.columns[10]].astype(str)
-    data['Data Inicio Atividade'] = data['Data Inicio Atividade'].str.replace(r'(\d{4})(\d{2})(\d{2})', r'\1-\2-\3')
-    data['Data Inicio Atividade'] = pd.to_datetime(data['Data Inicio Atividade'], errors='coerce', format='%d/%m/%Y')
+    data['Data Inicio Atividade'] = data['Data Inicio Atividade'].apply(lambda x: f"{x[6:]}/{x[4:6]}/{x[:4]}")
+    data['Data Inicio Atividade'] = data['Data Inicio Atividade'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     dados = archives_parser('cnae')
-    data['Cnae-Fiscal'] = data[data.columns[11]].map(dados).apply(lambda x: x if x != '' else 'null')
-    data['Cnae-Fiscal2'] = data[data.columns[12]].map(dados).apply(lambda x: x if x != '' else 'null')
+    data['Cnae-Fiscal'] = data[data.columns[11]].map(dados)
+    data['Cnae-Fiscal'] = data['Cnae-Fiscal'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
+    data['Cnae-Fiscal2'] = data[data.columns[12]].map(dados)
+    data['Cnae-Fiscal2'] = data['Cnae-Fiscal2'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     data['Numero'] = data[data.columns[15]].apply(lambda x: x if x != '' else 'S/N')
 
-    data['Complemento'] = data[data.columns[13]].apply(lambda x: x if x != '' else 'null')
-    data['Bairro'] = data[data.columns[14]].apply(lambda x: x if x != '' else 'null')
+    data['Complemento'] = data[data.columns[13]]
+    data['Complemento'] = data['Complemento'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
-    data['CEP'] = data[data.columns[18]].apply(lambda x: x if x != '' else 'null')
-    data['UF'] = data[data.columns[19]].apply(lambda x: x if x != '' else 'null')
+    data['Bairro'] = data[data.columns[14]]
+    data['Bairro'] = data['Bairro'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
+
+    data['CEP'] = data[data.columns[18]]
+    data['CEP'] = data['CEP'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
+
+    data['UF'] = data[data.columns[19]]
+    data['UF'] = data['UF'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
     
     dados = archives_parser('municipio')
-    data['Codigo Municipio'] = data[data.columns[20]].map(dados).apply(lambda x: x if x != '' else 'null')
-    #print(data['Codigo Municipio'])
-    
+    data['Codigo Municipio'] = data[data.columns[20]].map(dados)   
+    data['Codigo Municipio'] = data['Codigo Municipio'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     #data['DDD-Telefone'] =pd.to_numeric(data[data.columns[21]]) + pd.to_numeric(data[data.columns[22]])
     data['DDD-Telefone'] = data.apply(lambda row: str(row[data.columns[21]]) + str(row[data.columns[22]]), axis=1).apply(lambda x: x if x != '' else 'null')
     data['DDD-Telefone2'] = data.apply(lambda row: str(row[data.columns[23]]) + str(row[data.columns[24]]), axis=1).apply(lambda x: x if x != '' else 'null')
     data['DDD-Fax'] = data.apply(lambda row: str(row[data.columns[25]]) + str(row[data.columns[26]]), axis=1).apply(lambda x: x if x != '' else 'null')
 
-    data['E-mail'] = data[data.columns[27]].apply(lambda x: x if x != '' else 'null')
-
-    #data['DDD-Telefone'] = data.iloc[21:, :2].astype(str).apply(lambda row: '.'.join([str(val) for val in row]), axis=1)
+    data['E-mail'] = data[data.columns[27]]
 
     data_final = data[['CNPJ','Matriz/Filial','Razão Social/Nome','Situação Cadastral','Data Situação Cadastral','Motivo Situação Cadastral','CO-Pais','Data Inicio Atividade','Cnae-Fiscal','Cnae-Fiscal2','Numero','Complemento','Bairro','CEP','UF','Codigo Municipio','DDD-Telefone','DDD-Telefone2','DDD-Fax','E-mail']]
-    #data_final.to_csv()
-    #data_final.to_csv('data/teste2.csv', index=False, sep=';')
+    data_final = data_final.to_dict(orient='records')
 
-    # with open('data/teste2.csv') as file:
-    #     linhas = file.read().splitlines()
-
-    #     for linha in linhas:
-    #         linha = linha.replace('na', 'null') if 'na' in linha else linha
-    #         with open('data/teste3.csv','+a') as renamed_file:
-    #             renamed_file.write(linha+'\n')
-    # print(data_final)
     return data_final
 
 
@@ -7606,37 +7604,33 @@ def request(url):
         zip_name = link.get('href')
         #if zip_name.endswith('.zip'):
         if zip_name.startswith('Estabelecimento'):
-            print(zip_name)
-            url_file = urllib.parse.urljoin(url, zip_name)
-            zip_data = requests.get(url_file).content
-            #print(zip_data)
+            # print(zip_name)
+            # url_file = urllib.parse.urljoin(url, zip_name)
+            # zip_data = requests.get(url_file).content
 
-            zipfile_obj = zipfile.ZipFile(io.BytesIO(zip_data))
-            csv_files = [file for file in zipfile_obj.namelist()]
-            #print(csv_files)
+            # zipfile_obj = zipfile.ZipFile(io.BytesIO(zip_data))
+            # csv_files = [file for file in zipfile_obj.namelist()]
 
             # Ler os arquivos CSV e converter para formato JSON
             
             #Teste para economizar tempo
-            if zip_name.startswith('Estabelecimento'):
-                data = []
-                for csv_file in csv_files:
-                    #csv_file = 'data\K3241K03200Y1D30610ESTABELE.csv'
-                    csv_data = zipfile_obj.read(csv_file)
-                    df = pd.read_csv(io.StringIO(csv_data.decode('latin1')), sep=';', encoding='latin1')
-                    #data = df.to_dict(orient='split')
-                    #print(json_data)
-
-                #df = pd.read_csv('data\\teste.csv', encoding='latin1', sep=';', low_memory=False)
-                #data = df.to_dict(orient='index')
-                    data = df.head()
+            #if zip_name.startswith('Estabelecimento'):
+            # data = []
+            # for csv_file in csv_files:
+            #     csv_data = zipfile_obj.read(csv_file)
+            #     df = pd.read_csv(io.StringIO(csv_data.decode('latin1')), sep=';', encoding='latin1')
                 
-                    fileType(zip_name, data)
+                #data = df.to_dict(orient='split')
+                #print(json_data)
 
-                #insertData(zip_name, data)
+            df = pd.read_csv('Desafio-Tecnico-Data-Pipeline\\data\\teste.csv', encoding='latin1', sep=';', low_memory=False)
+            #data = df.to_dict(orient='index')
+            #data = df.head()
+            
+            fileType(zip_name, df)
                 
     print('Todos os dados foram enviados com sucesso.')
 
 
 url = "https://dadosabertos.rfb.gov.br/CNPJ/"
-#request(url)
+request(url)
