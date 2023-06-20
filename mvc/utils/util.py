@@ -7529,7 +7529,7 @@ def processingEstabelecimento(name, data):
     data['Codigo Municipio'] = data['Codigo Municipio'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     #data['DDD-Telefone'] =pd.to_numeric(data[data.columns[21]]) + pd.to_numeric(data[data.columns[22]])
-    data['DDD1'] = data[data.columns[21]].astype(str).apply(lambda x: f"{x[:2]}")
+    data['DDD1'] = data[data.columns[21]].astype(str).apply(lambda x: f"({x[:2]})")
     data['Telefone1'] = data[data.columns[22]].astype(str).apply(lambda x: f"{x[:8]}")
     data['DDD-Telefone'] = data.apply(lambda row: str(row['DDD1']) + str(row['Telefone1']), axis=1).apply(lambda x: x if x != '' else 'null')
 

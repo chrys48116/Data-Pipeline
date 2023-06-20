@@ -145,12 +145,20 @@ class Processing():
             data['Codigo Municipio'] = data['Codigo Municipio'].fillna(pd.NaT).astype(
                 str).apply(lambda x: x.replace('.nan', ''))
             
-            data['DDD-Telefone'] = data.apply(lambda row: str(row[data.columns[21]])
-            + str(row[data.columns[22]]), axis=1).apply(lambda x: x if x != '' else 'null')
-            data['DDD-Telefone2'] = data.apply(lambda row: str(row[data.columns[23]])
-            + str(row[data.columns[24]]), axis=1).apply(lambda x: x if x != '' else 'null')
-            data['DDD-Fax'] = data.apply(lambda row: str(row[data.columns[25]])
-            + str(row[data.columns[26]]), axis=1).apply(lambda x: x if x != '' else 'null')
+            data['DDD1'] = data[data.columns[21]].astype(str).apply(lambda x: f"({x[:2]})")
+            data['Telefone1'] = data[data.columns[22]].astype(str).apply(lambda x: f"{x[:8]}")
+            data['DDD-Telefone'] = data.apply(lambda row: str(row['DDD'])
+            + str(row['Telefone1']), axis=1).apply(lambda x: x if x != '' else 'null')
+
+            data['DDD2'] = data[data.columns[23]].astype(str).apply(lambda x: f"({x[:2]})")
+            data['Telefone2'] = data[data.columns[24]].astype(str).apply(lambda x: f"{x[:8]}")
+            data['DDD-Telefone2'] = data.apply(lambda row: str(row['DDD2'])
+            + str(row['Telefone2']), axis=1).apply(lambda x: x if x != '' else 'null')
+
+            data['DDD-Fax'] = data[data.columns[25]].astype(str).apply(lambda x: f"({x[:2]})")
+            data['Telefone-Fax'] = data[data.columns[26]].astype(str).apply(lambda x: f"{x[:8]}")
+            data['DDD-Fax'] = data.apply(lambda row: str(row['DDD-Fax'])
+            + str(row['Telefone-Fax']), axis=1).apply(lambda x: x if x != '' else 'null')
 
             data['E-mail'] = data[data.columns[27]]
 
