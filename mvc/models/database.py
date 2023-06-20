@@ -1,9 +1,23 @@
 from pymongo import MongoClient
 from datetime import datetime
-import pandas as pd
 
 class Database:
     def __init__(self):
+        """Inicializa a conexão com o MongoDB Atlas.
+
+        A função cria uma conexão com o MongoDB Atlas utilizando as credenciais fornecidas.
+        A conexão estabelecida permite acessar o banco de dados e realizar operações nele.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+
+        """
         try:
             self.client = MongoClient(
             "mongodb+srv://chrystian:chrystianartur16@cluster0.9bva9n6.mongodb.net/")
@@ -14,6 +28,23 @@ class Database:
 
 
     def insert(self, zip_name, data):
+        """Insere os dados em uma coleção do MongoDB Atlas.
+
+        Esta função recebe o nome do arquivo ZIP e os dados a serem inseridos.
+        Utiliza o nome do arquivo para determinar o nome da coleção no MongoDB Atlas.
+        Os dados são inseridos na coleção especificada.
+
+        Args:
+            zip_name (str): O nome do arquivo ZIP.
+            data (list): Os dados a serem inseridos na coleção.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+
+        """
         try:
             collection = self.db[f'{zip_name.split(".")[0]}']
             collection.insert_many(data)
@@ -23,6 +54,22 @@ class Database:
 
 
     def query(self, table_name):
+        """Realiza uma consulta na coleção especificada do MongoDB Atlas.
+
+        Esta função recebe o nome da coleção no MongoDB Atlas e realiza uma 
+        série de consultas para obter informações sobre as empresas.
+
+        Args:
+            table_name (str): O nome da coleção no MongoDB Atlas.
+
+        Returns:
+            tuple: Uma tupla contendo a porcentagem de empresas ativas e um 
+            icionário com a quantidade de empresas de restaurantes abertas por ano.
+
+        Raises:
+            None.
+
+        """
         try:
             collection = self.db[table_name]
             total_empresas = collection.count_documents({})
@@ -34,7 +81,7 @@ class Database:
             ano_empresas = {}
             empresas_restaurante = collection.find(
                 {
-                    "CNAE": {"$regex": f"^{prefixo_restaurante}"},
+                    "Cnae": {"$regex": f"^{prefixo_restaurante}"},
                     "Data Inicio Atividade": {"$exists": True},
                 },
                 {"Data Inicio Atividade": 1},

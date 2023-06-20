@@ -4,6 +4,24 @@ import pandas as pd
 class Processing():
 
     def data_lucros(self, name, data):
+        """Processa os dados de lucros.
+        Args:
+            name (str): Nome do arquivo.
+            data (pandas.DataFrame): Dados de entrada.
+
+        Returns:
+            list: Lista de dicionários contendo os dados processados.
+
+        Raises:
+            None.
+
+        Examples:
+            Exemplo de uso da função:
+
+            >>> data = pd.DataFrame(...)
+            >>> self.data_lucros("lucros.csv", data)
+    """
+
         try:
             self.name = name.split(".")[0]
             print(data)
@@ -29,6 +47,24 @@ class Processing():
 
 
     def data_socios(self, name, data):
+        """Processa os dados de sócios.
+    Args:
+        name (str): Nome do arquivo.
+        data (pandas.DataFrame): Dados de entrada.
+
+    Returns:
+        list: Lista de dicionários contendo os dados processados.
+
+    Raises:
+        None.
+
+    Examples:
+        Exemplo de uso da função:
+
+        >>> data = pd.DataFrame(...)
+        >>> self.data_socios("socios.csv", data)
+    """
+
         try:
             self.name = name.split(".")[0]
             print(data)
@@ -65,6 +101,23 @@ class Processing():
 
 
     def data_estabelecimento(self, name, data):
+        """Processa os dados de estabelecimento.
+        Args:
+            name (str): Nome do arquivo.
+            data (pandas.DataFrame): Dados de entrada.
+
+        Returns:
+            list: Lista de dicionários contendo os dados processados.
+
+        Raises:
+            None.
+
+        Examples:
+            Exemplo de uso da função:
+
+            >>> data = pd.DataFrame(...)
+            >>> self.data_estabelecimento("estabelecimento.csv", data)
+    """
         try:
             self.name = name.split(".")[0]
             print(data)
@@ -74,7 +127,7 @@ class Processing():
             data['CNPJ'] = data[data.columns[1]].astype(str)
             data['CNPJ'] = data[data.columns[2]].astype(str)
             data['CNPJ'] = data.iloc[:, :3].astype(str).apply(lambda row: '.'.join(
-                [str(val) for val in row]), axis=1) #TODO: arrumar 0001
+                [str(val) for val in row]), axis=1) 
             data['CNPJ'] = data['CNPJ'].fillna(pd.NaT).astype(str).apply(
                 lambda x: x.replace('.nan', ''))
 
@@ -147,7 +200,7 @@ class Processing():
             
             data['DDD1'] = data[data.columns[21]].astype(str).apply(lambda x: f"({x[:2]})")
             data['Telefone1'] = data[data.columns[22]].astype(str).apply(lambda x: f"{x[:8]}")
-            data['DDD-Telefone'] = data.apply(lambda row: str(row['DDD'])
+            data['DDD-Telefone'] = data.apply(lambda row: str(row['DDD1'])
             + str(row['Telefone1']), axis=1).apply(lambda x: x if x != '' else 'null')
 
             data['DDD2'] = data[data.columns[23]].astype(str).apply(lambda x: f"({x[:2]})")

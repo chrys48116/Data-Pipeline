@@ -4,7 +4,6 @@ from .processing import Processing
 
 import requests
 from bs4 import BeautifulSoup
-import numpy as np
 import urllib.parse
 import zipfile
 import io
@@ -12,6 +11,16 @@ import pandas as pd
 
 class Controller:
     def __init__(self, url):
+        """Inicializa uma instância da classe MyClass.
+        Args:
+            url (str): URL a ser utilizada para fazer uma requisição.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+        """
         self.url = url
         self.response = requests.get(self.url)
         self.parser = BeautifulSoup(self.response.text, 'html.parser')
@@ -20,7 +29,22 @@ class Controller:
         self.processing = Processing
 
 
-    def request(self):          
+    def request(self):
+        """Realiza uma requisição para extrair dados de arquivos CSV em um arquivo ZIP.
+
+        A função extrai os arquivos CSV de um arquivo ZIP em memória,
+        lê os arquivos CSV e os converte para o formato JSON.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+
+        """         
         try:
             links = self.parser.find_all('a')
             # Extrair os arquivos CSV do arquivo ZIP em memória
@@ -49,6 +73,23 @@ class Controller:
         
 
     def file_type(self, name, data):
+        """Processa o tipo de arquivo e insere os dados correspondentes no banco de dados.
+
+        A função processa o tipo de arquivo com base no nome fornecido
+        e chama o método apropriado de processamento de dados e inserção no banco de dados.
+
+        Args:
+            name (str): O nome do arquivo.
+            data (objeto): Os dados do arquivo a serem processados.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+
+        """
+        
         try:
             self.name = name.split(".")[0]
 
@@ -73,6 +114,21 @@ class Controller:
 
 
     def export_data(self, collection):
+        """Exporta os dados para arquivos CSV e Excel.
+
+        A função exporta os dados fornecidos em diferentes formatos, incluindo arquivos CSV e Excel.
+        Os dados são obtidos por meio de consultas ao banco de dados.
+
+        Args:
+            collection (str): O nome da coleção de dados a ser consultada.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+
+        """
         try:
             porcentagem_ativas, ano_empresas = self.database.query(collection)
 

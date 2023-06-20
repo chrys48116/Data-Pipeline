@@ -1,7 +1,6 @@
 from mvc.models.database import Database
 
 import unittest
-from unittest.mock import MagicMock
 
 class TestDatabase(unittest.TestCase):
     def setUp(self):
