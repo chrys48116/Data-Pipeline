@@ -7421,10 +7421,11 @@ def fileType(name, data):
 
     if name.startswith('Empresas'):
         processingEmpresas()
+
     elif name.startswith('Estabelecimento'):
         data = processingEstabelecimento(name, data)
         insertData(name, data)
-        pass
+        
 
     elif name.startswith('Socios'):
         processingSocios()
@@ -7528,8 +7529,15 @@ def processingEstabelecimento(name, data):
     data['Codigo Municipio'] = data['Codigo Municipio'].fillna(pd.NaT).astype(str).apply(lambda x: x.replace('.nan', ''))
 
     #data['DDD-Telefone'] =pd.to_numeric(data[data.columns[21]]) + pd.to_numeric(data[data.columns[22]])
-    data['DDD-Telefone'] = data.apply(lambda row: str(row[data.columns[21]]) + str(row[data.columns[22]]), axis=1).apply(lambda x: x if x != '' else 'null')
-    data['DDD-Telefone2'] = data.apply(lambda row: str(row[data.columns[23]]) + str(row[data.columns[24]]), axis=1).apply(lambda x: x if x != '' else 'null')
+    data['DDD1'] = data[data.columns[21]].astype(str).apply(lambda x: f"{x[:2]}")
+    data['Telefone1'] = data[data.columns[22]].astype(str).apply(lambda x: f"{x[:8]}")
+    data['DDD-Telefone'] = data.apply(lambda row: str(row['DDD1']) + str(row['Telefone1']), axis=1).apply(lambda x: x if x != '' else 'null')
+
+    data['DDD2'] = data[data.columns[23]].astype(str).apply(lambda x: f"{x[:2]}")
+    data['Telefone2'] = data[data.columns[24]].astype(str).apply(lambda x: f"{x[:8]}")
+    data['DDD-Telefone2'] = data.apply(lambda row: str(row['DDD2']) + str(row['Telefone2']), axis=1).apply(lambda x: x if x != '' else 'null')
+    
+    
     data['DDD-Fax'] = data.apply(lambda row: str(row[data.columns[25]]) + str(row[data.columns[26]]), axis=1).apply(lambda x: x if x != '' else 'null')
 
     data['E-mail'] = data[data.columns[27]]
@@ -7540,46 +7548,43 @@ def processingEstabelecimento(name, data):
     return data_final
 
 
-def readFiles():
-    ...
-
 def query():
-    import pymongo
-    from datetime import datetime
+        import pymongo
+        from datetime import datetime
 
-    # Conexão com o banco de dados MongoDB
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
-    db = client["nomedobanco"]  # Substitua "nomedobanco" pelo nome do seu banco de dados
-    collection = db["nomedacollection"]  # Substitua "nomedacollection" pelo nome da sua coleção
+        # Conexão com o banco de dados MongoDB
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["nomedobanco"]  # Substitua "nomedobanco" pelo nome do seu banco de dados
+        collection = db["nomedacollection"]  # Substitua "nomedacollection" pelo nome da sua coleção
 
-    # Tarefa a) - Porcentagem de empresas ativas
-    total_empresas = collection.count_documents({})
-    empresas_ativas = collection.count_documents({"SITUAÇÃO CADASTRAL": "Ativa"})
-    porcentagem_ativas = (empresas_ativas / total_empresas) * 100
-    print(f"Porcentagem de empresas ativas: {porcentagem_ativas:.2f}%")
+        # Tarefa a) - Porcentagem de empresas ativas
+        total_empresas = collection.count_documents({})
+        empresas_ativas = collection.count_documents({"SITUAÇÃO CADASTRAL": "Ativa"})
+        porcentagem_ativas = (empresas_ativas / total_empresas) * 100
+        print(f"Porcentagem de empresas ativas: {porcentagem_ativas:.2f}%")
 
-    # Tarefa b) - Quantidade de empresas de restaurantes abertas por ano
-    prefixo_restaurante = "561"
-    ano_empresas = {}
-    empresas_restaurante = collection.find(
-        {
-            "CNAE PRINCIPAL": {"$regex": f"^{prefixo_restaurante}"},
-            "DATA DE INÍCIO ATIVIDADE": {"$exists": True},
-        },
-        {"DATA DE INÍCIO ATIVIDADE": 1},
-    )
+        # Tarefa b) - Quantidade de empresas de restaurantes abertas por ano
+        prefixo_restaurante = "561"
+        ano_empresas = {}
+        empresas_restaurante = collection.find(
+            {
+                "CNAE PRINCIPAL": {"$regex": f"^{prefixo_restaurante}"},
+                "DATA DE INÍCIO ATIVIDADE": {"$exists": True},
+            },
+            {"DATA DE INÍCIO ATIVIDADE": 1},
+        )
 
-    for empresa in empresas_restaurante:
-        data_inicio = empresa["DATA DE INÍCIO ATIVIDADE"]
-        ano = datetime.strptime(data_inicio, "%Y-%m-%d").year
-        if ano in ano_empresas:
-            ano_empresas[ano] += 1
-        else:
-            ano_empresas[ano] = 1
+        for empresa in empresas_restaurante:
+            data_inicio = empresa["DATA DE INÍCIO ATIVIDADE"]
+            ano = datetime.strptime(data_inicio, "%Y-%m-%d").year
+            if ano in ano_empresas:
+                ano_empresas[ano] += 1
+            else:
+                ano_empresas[ano] = 1
 
-    print("Quantidade de empresas de restaurantes abertas por ano:")
-    for ano, quantidade in ano_empresas.items():
-        print(f"Ano {ano}: {quantidade} empresas")
+        print("Quantidade de empresas de restaurantes abertas por ano:")
+        for ano, quantidade in ano_empresas.items():
+            print(f"Ano {ano}: {quantidade} empresas")
 
 
 def insertData(zip_name, data):
@@ -7623,7 +7628,7 @@ def request(url):
                 #data = df.to_dict(orient='split')
                 #print(json_data)
 
-            df = pd.read_csv('Desafio-Tecnico-Data-Pipeline\\data\\teste.csv', encoding='latin1', sep=';', low_memory=False)
+            df = pd.read_csv('data\\teste.csv', encoding='latin1', sep=';', low_memory=False)
             #data = df.to_dict(orient='index')
             #data = df.head()
             
