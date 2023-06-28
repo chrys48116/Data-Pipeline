@@ -1,5 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 class Database:
     def __init__(self):
@@ -18,9 +20,10 @@ class Database:
             None.
 
         """
+        load_dotenv()
+        user= os.environ['USER'],
         try:
-            self.client = MongoClient(
-            "mongodb+srv://chrystian:chrystianartur16@cluster0.9bva9n6.mongodb.net/")
+            self.client = MongoClient(user)
             self.db = self.client['Cluster0']
             print("Conexão com o MongoDB Atlas estabelecida com sucesso.")
         except Exception as e:
