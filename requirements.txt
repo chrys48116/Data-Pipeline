@@ -1,0 +1,25 @@
+beautifulsoup4==4.12.2
+bs4==0.0.1
+certifi==2023.5.7
+charset-normalizer==3.1.0
+dnspython==2.3.0
+idna==3.4
+joblib==1.2.0
+numpy==1.24.3
+pandas==2.0.2
+# Editable install with no version control (pipeline==0.1.0)
+-e c:\dev\projects\pipeline
+pymongo==4.3.3
+python-dateutil==2.8.2
+pytz==2023.3
+requests==2.31.0
+scikit-learn==1.2.2
+scikit-learn-pipeline-utils==0.0.7
+scipy==1.10.1
+six==1.16.0
+sklearn==0.0.post5
+sklearn-model==0.0.6
+soupsieve==2.4.1
+threadpoolctl==3.1.0
+tzdata==2023.3
+urllib3==2.0.3
